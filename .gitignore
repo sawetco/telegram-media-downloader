@@ -1,0 +1,22 @@
+# Telegram API credentials, user sessions, and downloaded media
+config.json
+config.*.json
+*.session
+*.session-journal
+session.session*
+session.session-journal
+*.session-shm
+*.session-wal
+downloads/
+*.log
+
+# Python local development
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.DS_Store
