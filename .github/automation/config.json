@@ -1,0 +1,14 @@
+{
+  "requiredChecks": [
+    "Python 3.10",
+    "Python 3.13",
+    "Security checks"
+  ],
+  "workflowNames": [
+    "Quality",
+    "Security"
+  ],
+  "qualityWorkflow": "quality.yml",
+  "securityWorkflow": "security.yml",
+  "monitoredWorkflows": []
+}

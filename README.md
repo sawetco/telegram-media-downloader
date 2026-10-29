@@ -36,7 +36,7 @@
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/telegram-media-downloader.git
+git clone https://github.com/sawetco/telegram-media-downloader.git
 cd telegram-media-downloader
 ```
 
