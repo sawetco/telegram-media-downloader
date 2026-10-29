@@ -51,14 +51,8 @@ module.exports = async ({github,context,core}) => {
           if (/from\s+v?(\d+)[\s\S]*?to\s+v?(\d+)/i.test(pr.title)) {
             const m=pr.title.match(/from\s+v?(\d+)[\s\S]*?to\s+v?(\d+)/i); if(m[1]!==m[2])safe=false;
           }
-        } else if (/(^|\/)requirements(?:-[\w-]+)?\.txt$/.test(f.filename)) {
-          const a=(await getText(f.filename,pr.base.sha)).trim().split('\n');
-          const b=(await getText(f.filename,pr.head.sha)).trim().split('\n');
-          if(a.length!==b.length)safe=false;
-          else for(let i=0;i<a.length;i++) if(a[i]!==b[i]) {
-            const x=a[i].match(/^([\w.-]+)([>=~!<]+)([\d.]+)\s*$/), y=b[i].match(/^([\w.-]+)([>=~!<]+)([\d.]+)\s*$/);
-            if(!x||!y||x[1]!==y[1]||x[2]!==y[2]||!safeVersion(x[3],y[3]))safe=false;
-          }
+        } else if (/(^|\/)requirements(?:-[\w-]+)?\.(?:txt|in)$/.test(f.filename)) {
+          if(!structuredSafe('pip',f.filename,await getText(f.filename,pr.base.sha),await getText(f.filename,pr.head.sha)))safe=false;
         } else if (f.filename.endsWith('Cargo.toml') || f.filename.endsWith('Cargo.lock')) {
           if(!structuredSafe('cargo', f.filename, await getText(f.filename,pr.base.sha), await getText(f.filename,pr.head.sha)))safe=false;
         } else if (f.filename.endsWith('composer.json')) {
@@ -66,7 +60,7 @@ module.exports = async ({github,context,core}) => {
         } else if (!/(^|\/)(package-lock\.json|pnpm-lock\.yaml|bun\.lock|composer\.lock|Cargo\.lock)$/.test(f.filename)) safe=false;
       }
       // Lockfile-only groups must state a minor/patch update, not silently bundle a major.
-      if(!files.some(f=>/(package\.json|requirements.*\.txt|Cargo\.(toml|lock)|composer\.json|workflows\/)/.test(f.filename))) safe=false;
+      if(!files.some(f=>/(package\.json|requirements.*\.(?:txt|in)|Cargo\.(toml|lock)|composer\.json|workflows\/)/.test(f.filename))) safe=false;
     }
     if (!safe) {attention.push(`- [#${pr.number}](${pr.html_url}): major update or a change outside the automatic dependency policy.`);continue;}
     if (pr.mergeable_state === 'behind') {

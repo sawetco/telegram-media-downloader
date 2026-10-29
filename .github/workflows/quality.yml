@@ -33,10 +33,24 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Install dependencies
-        run: python -m pip install -r requirements.txt
+        run: python -m pip install --require-hashes -r requirements.txt
       - name: Check dependency consistency
         run: python -m pip check
       - name: Verify source syntax
         run: python -m compileall -q setup.py downloader.py find_channel.py
       - name: Offline source tests (no Telegram credentials)
         run: python -m unittest discover -s tests -p "test_*.py" -v
+
+  dependency-security:
+    name: Python dependency security
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: "3.13"
+      - run: python -m pip install pip-audit==2.9.0
+      - run: pip-audit -r requirements.txt --require-hashes --progress-spinner off

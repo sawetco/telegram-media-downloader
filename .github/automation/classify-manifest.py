@@ -30,7 +30,29 @@ def cargo_manifest(a,b):
         return True
     return a==b
 
+def pip_requirements(text):
+    logical=[];pending=''
+    for line in text.splitlines():
+        line=line.split('#',1)[0].strip()
+        if not line:continue
+        pending+=line.rstrip('\\').strip()+' '
+        if not line.endswith('\\'):logical.append(pending.strip());pending=''
+    if pending:raise ValueError('Incomplete requirement')
+    out={}
+    for line in logical:
+        line=re.sub(r'\s+--hash=sha256:[a-f0-9]{64}(?=\s|$)','',line).strip()
+        version,separator,marker=line.partition(';')
+        match=re.fullmatch(r'([a-zA-Z0-9_.-]+)==(\d+\.\d+\.\d+)',version.strip())
+        if not match:raise ValueError('Unsupported executable or unpinned requirement')
+        name=match[1].lower().replace('_','-')
+        if name in out:raise ValueError('Duplicate requirement')
+        out[name]=(match[2],marker.strip())
+    return out
+
 def classify(data):
+    if data['kind']=='pip':
+        a,b=pip_requirements(data['before']),pip_requirements(data['after'])
+        return a.keys()==b.keys() and all(a[k][1]==b[k][1] and safe_version(a[k][0],b[k][0]) for k in a)
     if data['kind']=='composer':
         a,b=json.loads(data['before']),json.loads(data['after'])
         for section in ('require','require-dev'):

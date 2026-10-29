@@ -7,3 +7,5 @@ Quality and Security are explicitly dispatched after a workflow-token merge beca
 Failed jobs are retried once. Persistent failures and decisions appear in one assigned `Maintenance requires attention` issue; the issue is updated without repeated comments and closes when there is nothing actionable. Passing routine work only appears in Actions summaries. The daily fallback checks existing runs; it does not send mail, SMS or Meta messages.
 
 Actions use read-only permissions by default. The maintenance job alone has the permissions needed to merge, retry, dispatch and maintain its issue. CODEOWNERS documents responsibility; an independent approval is not required for a sole maintainer. Secrets must stay in GitHub/Vercel settings and never in commits or artifacts.
+
+Python runtime dependencies are universally resolved for Python 3.10+, pinned and hashed. Dependabot updates the input and resolved requirements together. The separate dependency security check queries fresh advisories; it never authenticates to Telegram.
